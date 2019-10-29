@@ -8,7 +8,7 @@ import numpy as np
 from typing import List, Tuple, Dict, Union
 from influxdb import InfluxDBClient
 
-from core.logger import logger
+from logger import logger
 
 class DataGetter:
     setting_file = "/db_settings.json"
