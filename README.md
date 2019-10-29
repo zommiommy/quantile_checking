@@ -1,1 +1,1 @@
-# quantile_checking
+# QuantileChecker
