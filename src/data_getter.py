@@ -1,5 +1,7 @@
 # QuantileChecker is a free software developed by Tommaso Fontana for Wurth Phoenix S.r.l. under GPL-2 License.
 
+from logger import logger
+
 import os
 import sys
 import json
@@ -8,8 +10,6 @@ import numpy as np
 from typing import List, Tuple, Dict, Union
 from influxdb import InfluxDBClient
 
-from logger import logger
-
 class DataGetter:
     setting_file = "/db_settings.json"
 
@@ -17,7 +17,7 @@ class DataGetter:
         """Load the settings file and connect to the DB"""
 
         # Get the current folder
-        current_script_dir = "/".join(__file__.split("/")[:-3])
+        current_script_dir = "/".join(__file__.split("/")[:-2])
         
         path = current_script_dir + self.setting_file
         logger.info("Loading the DB settings from [%s]"%path)
@@ -39,5 +39,7 @@ class DataGetter:
     def exec_query(self, query : str):
         # Construct the query to workaround the tags distinct constraint
         query = query.replace("\\", "\\\\")
-        logger.info("Executing query [%s]"%query)
-        return list(self.client.query(query).get_points())
+        logger.info(f"Executing query [{query}]")
+        result = list(self.client.query(query).get_points())
+        logger.debug(f"Result of the query: [{result}]")
+        return result

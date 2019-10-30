@@ -2,12 +2,13 @@
 import sys
 import logging
 
+default_level = logging.ERROR
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(default_level)
 
 handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
+handler.setLevel(default_level)
 formatter = logging.Formatter('%(levelname)s:%(filename)s:%(funcName)s:%(lineno)d:%(message)s') # %(asctime)s:
 handler.setFormatter(formatter)
 logger.addHandler(handler)
