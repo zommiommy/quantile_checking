@@ -81,7 +81,7 @@ class MainClass:
         self.output = np.mean(_output)
 
         # The difference between the quantile and the bandwith  converted to a fee
-        self.burst = self.args.penality * (self.quantile - self.args.max) 
+        self.burst = self.args.penalty * (self.quantile - self.args.max) 
 
         # TODO check metric
         self.precision = 1
