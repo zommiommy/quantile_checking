@@ -71,7 +71,7 @@ class MainClass:
         dic["metric"] = metric
 
         if dic["time"] == None:
-            dict["time"] = f"{self.get_seconds_from_first_of_month()}s"
+            dic["time"] = f"{self.get_seconds_from_first_of_month()}s"
 
         return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time}) """.format(**dic)
 
