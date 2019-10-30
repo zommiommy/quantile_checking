@@ -43,7 +43,7 @@ class MainClass:
         query_settings_r.add_argument("-M", "--measurement",           help="Measurement where the data will be queried.", type=str, required=True)
         query_settings_r.add_argument("-I", "--input",                 help="The name of the input bandwith",  type=str, default="inBandwidth")
         query_settings_r.add_argument("-O", "--output",                help="The name of the output bandwith", type=str, default="outBandwidth")
-        query_settings_r.add_argument("-rc", "--report-csv",           help="Path where to save the data used", type=bool, default=False, action="store_true")
+        query_settings_r.add_argument("-rc", "--report-csv",           help="Path where to save the data used", default=False, action="store_true")
         query_settings_r.add_argument("-rcp", "--report-csv-path",     help="Path where to save the data used", type=str, default="./")
 
         thresholds_settings = self.parser.add_argument_group('Fee settings')
