@@ -8,6 +8,7 @@ import sys
 import logging
 import argparse
 import numpy as np
+from datetime import datetime
 from typing import Dict, Union, List
 
 import warnings
@@ -36,18 +37,19 @@ class MainClass:
         self.parser = MyParser(description=self.copyrights)
 
         query_settings_r = self.parser.add_argument_group('query settings (required)')
-        query_settings_r.add_argument("-H", "--hostname",       help="The hostname to select", type=str, required=True)
-        query_settings_r.add_argument("-S", "--service",        help="The service to select", type=str, required=True)
-        query_settings_r.add_argument("-M", "--measurement",    help="Measurement where the data will be queried.", type=str, required=True)
-        query_settings_r.add_argument("-I", "--input",             help="The name of the input bandwith",  type=str, default="inBandwidth")
-        query_settings_r.add_argument("-O", "--output",            help="The name of the output bandwith", type=str, default="outBandwidth")
+        query_settings_r.add_argument("-H", "--hostname",              help="The hostname to select", type=str, required=True)
+        query_settings_r.add_argument("-S", "--service",               help="The service to select", type=str, required=True)
+        query_settings_r.add_argument("-M", "--measurement",           help="Measurement where the data will be queried.", type=str, required=True)
+        query_settings_r.add_argument("-I", "--input",                 help="The name of the input bandwith",  type=str, default="inBandwidth")
+        query_settings_r.add_argument("-O", "--output",                help="The name of the output bandwith", type=str, default="outBandwidth")
+        query_settings_r.add_argument("-rc", "--report-csv",           help="Path where to save the data used", type=str, default="./")
 
         thresholds_settings = self.parser.add_argument_group('Fee settings')
         thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwith usable", type=int, required=True)
         thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros inc ase of the threshold is exceded", type=float, required=True)
         thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold", type=float, default=0.95)
         thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile", type=str, default="24h")
-        thresholds_settings.add_argument("-qt", "--quantile-type", help="How the quantilie is going to be calculated 'merging' the input and output traffic", type=str, choices=["max","common"],default="max")
+        thresholds_settings.add_argument("-qt", "--quantile-type", help="How the quantilie is going to be calculated 'merging' the input and output traffic", type=str, choice=["max","common"]default="max")
 
 
         verbosity_settings= self.parser.add_argument_group('verbosity settings (optional)')
@@ -65,7 +67,7 @@ class MainClass:
     def construct_query(self, metric):
         dic =  {k: self.args.__getattribute__(k) for k in dir(self.args)}
         dic["metric"] = metric
-        return """SELECT value FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time}) """.format(**dic)
+        return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time}) """.format(**dic)
 
     def calculate_statistics(self, _input, _output):
         if self.args.quantile_type == "max":
@@ -96,9 +98,18 @@ class MainClass:
             f"""bandwith_stats_in={self.input:.0f}Mib""",
             f"""bandwith_stats_out={self.output:.0f}Mib""",
             f"""bandwith_stats_precision={self.precision:.0f}%""",
-            f"""bandwith_stats_burst={self.burst:.2f}""",
+            f"""bandwith_stats_burst={self.burst}""",
             ])
         return result
+
+    def export_to_csv(self, _input, _output):
+        path = self.args.report_csv
+        if path[-1] != "/":
+            path += "/"
+
+        date = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
+        pd.DataFrame(_input ).to_csv(path + f"input-{date}.csv")
+        pd.DataFrame(_output).to_csv(path + f"output-{date}.csv")
 
     def run(self):
         logger.info("Going to connect to the DB")
@@ -107,6 +118,8 @@ class MainClass:
         _input  = dg.exec_query(self.construct_query(self.args.input))
         logger.info("Gathering the data for the output Bandwith")
         _output = dg.exec_query(self.construct_query(self.args.output))
+
+        self.export_to_csv(_input, _output)
 
         # Convert to numpy arrays
         _input  = np.array([x["value"] for x in _input ], dtype=np.float)
