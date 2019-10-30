@@ -46,7 +46,8 @@ class MainClass:
         thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwith usable", type=int, required=True)
         thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros inc ase of the threshold is exceded", type=float, required=True)
         thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold", type=float, default=0.95)
-
+        thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile", type=str, default="24h")
+        
         verbosity_settings= self.parser.add_argument_group('verbosity settings (optional)')
         verbosity_settings.add_argument("-v", "--verbosity", help="set the logging verbosity, 0 == CRITICAL, 1 == INFO, 2 == DEBUG it defaults to ERROR.",  type=int, choices=[0,1,2], default=0)
 
@@ -62,7 +63,7 @@ class MainClass:
     def construct_query(self, metric):
         dic =  {k: self.args.__getattribute__(k) for k in dir(self.args)}
         dic["metric"] = metric
-        return """SELECT value FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - 24h) """.format(**dic)
+        return """SELECT value FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time}) """.format(**dic)
 
     def run(self):
         logger.info("Going to connect to the DB")
