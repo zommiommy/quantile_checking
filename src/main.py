@@ -43,14 +43,14 @@ class MainClass:
         query_settings_r.add_argument("-M", "--measurement",           help="Measurement where the data will be queried.", type=str, required=True)
         query_settings_r.add_argument("-I", "--input",                 help="The name of the input bandwith",  type=str, default="inBandwidth")
         query_settings_r.add_argument("-O", "--output",                help="The name of the output bandwith", type=str, default="outBandwidth")
-        query_settings_r.add_argument("-rc", "--report-csv",           help="Path where to save the data used", default=False, action="store_true")
+        query_settings_r.add_argument("-rc", "--report-csv",           help="Flag, if enabled the data read from the DB are dumped as a CSV", default=False, action="store_true")
         query_settings_r.add_argument("-rcp", "--report-csv-path",     help="Path where to save the data used", type=str, default="./")
 
         thresholds_settings = self.parser.add_argument_group('Fee settings')
         thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwith usable", type=int, required=True)
         thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros inc ase of the threshold is exceded", type=float, required=True)
         thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold", type=float, default=0.95)
-        thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile", type=str, default="24h")
+        thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile", type=str, default=None)
         thresholds_settings.add_argument("-qt", "--quantile-type", help="How the quantilie is going to be calculated 'merging' the input and output traffic", type=str, choices=["max","common"], default="max")
 
 
@@ -69,6 +69,10 @@ class MainClass:
     def construct_query(self, metric):
         dic =  {k: self.args.__getattribute__(k) for k in dir(self.args)}
         dic["metric"] = metric
+
+        if dic["time"] == None:
+            dict["time"] = f"{self.get_seconds_from_first_of_month()}s"
+
         return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time}) """.format(**dic)
 
     def calculate_statistics(self, _input, _output):
@@ -112,6 +116,14 @@ class MainClass:
         date = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
         pd.DataFrame(_input ).to_csv(path + f"input-{date}.csv")
         pd.DataFrame(_output).to_csv(path + f"output-{date}.csv")
+
+    def get_seconds_from_first_of_month(self):
+        today = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
+        first = "-".join(today.split("-")[:2]) + "-01-00:00:00"
+        logger.debug("Today is %s the first of the month is %s", today, first)
+        first = datetime.fromisoformat(first)
+        delta = today - first
+        return delta.seconds
 
     def run(self):
         logger.info("Going to connect to the DB")
