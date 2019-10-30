@@ -47,6 +47,7 @@ class MainClass:
         thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros inc ase of the threshold is exceded", type=float, required=True)
         thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold", type=float, default=0.95)
         thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile", type=str, default="24h")
+        thresholds_settings.add_argument("-qt", "--quantile-type", help="How the quantilie is going to be calculated 'merging' the input and output traffic", type=str, choice=["max","common"]default="max")
 
 
         verbosity_settings= self.parser.add_argument_group('verbosity settings (optional)')
@@ -67,17 +68,24 @@ class MainClass:
         return """SELECT value FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time}) """.format(**dic)
 
     def calculate_statistics(self, _input, _output):
-        in_quantile  = np.quantile(_input,  self.args.quantile)
-        out_quantile = np.quantile(_output, self.args.quantile)
-        self.quantile = max([in_quantile, out_quantile])
+        if self.args.quantile_type == "max":
+            in_quantile  = np.quantile(_input,  self.args.quantile)
+            out_quantile = np.quantile(_output, self.args.quantile)
+            self.quantile = max([in_quantile, out_quantile])
+        else:
+            self.quantile = max(np.quantile([_input, _output], self.args.quantile))
+
 
         self.max = max(max(_input), max(_output))
         self.input = np.mean(_input)
         self.output = np.mean(_output)
 
+        # The difference between the quantile and the bandwith  converted to a fee
+        self.burst = self.args.penality * (self.quantile - self.args.max) 
+
         # TODO check metric
         self.precision = 1
-        self.burst = 1
+        
 
     def format_result(self):
         result = f"""Il {self.args.quantile * 100:.0f}th percentile calcolato e' {self.quantile:.0f}Mib"""
