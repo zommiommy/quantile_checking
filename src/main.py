@@ -62,7 +62,7 @@ class MainClass:
     def construct_query(self, metric):
         dic =  {k: self.args.__getattribute__(k) for k in dir(self.args)}
         dic["metric"] = metric
-        return """SELECT value FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "matric" = '{metric}' """.format(**dic) # AND "time" > (now() - 24h) 
+        return """SELECT value FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - 24h) """.format(**dic)
 
     def run(self):
         logger.info("Going to connect to the DB")
@@ -92,6 +92,8 @@ class MainClass:
         # TODO check metric
         self.precision = 1
         self.burst = 1
+
+        # Print the results
 
         logger.info("Formatting the formatted results:")
 
