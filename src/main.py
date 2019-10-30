@@ -39,8 +39,8 @@ class MainClass:
         query_settings_r.add_argument("-H", "--hostname",       help="The hostname to select", type=str, required=True)
         query_settings_r.add_argument("-S", "--service",        help="The service to select", type=str, required=True)
         query_settings_r.add_argument("-M", "--measurement",    help="Measurement where the data will be queried.", type=str, required=True)
-        query_settings_r.add_argument("-I", "--input",             help="The name of the input bandwith",  type=str, default="inBandwith")
-        query_settings_r.add_argument("-O", "--output",            help="The name of the output bandwith", type=str, default="outBandwith")
+        query_settings_r.add_argument("-I", "--input",             help="The name of the input bandwith",  type=str, default="inBandwidth")
+        query_settings_r.add_argument("-O", "--output",            help="The name of the output bandwith", type=str, default="outBandwidth")
 
         thresholds_settings = self.parser.add_argument_group('Fee settings')
         thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwith usable", type=int, required=True)

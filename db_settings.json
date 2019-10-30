@@ -1,9 +1,9 @@
 {
     "database": "icinga2",
-    "host": "localhost",
+    "host": "influxdb.neteyelocal",
     "port": 8086,
     "username": "root",
-    "password": "root",
+    "password": "",
     "ssl": false,
     "verify_ssl": false,
     "timeout": 60,
