@@ -43,7 +43,8 @@ class MainClass:
         query_settings_r.add_argument("-M", "--measurement",           help="Measurement where the data will be queried.", type=str, required=True)
         query_settings_r.add_argument("-I", "--input",                 help="The name of the input bandwith",  type=str, default="inBandwidth")
         query_settings_r.add_argument("-O", "--output",                help="The name of the output bandwith", type=str, default="outBandwidth")
-        query_settings_r.add_argument("-rc", "--report-csv",           help="Path where to save the data used", type=str, default=None)
+        query_settings_r.add_argument("-rc", "--report-csv",           help="Path where to save the data used", type=bool, default=False, action="store_true")
+        query_settings_r.add_argument("-rcp", "--report-csv-path",     help="Path where to save the data used", type=str, default="./")
 
         thresholds_settings = self.parser.add_argument_group('Fee settings')
         thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwith usable", type=int, required=True)
@@ -104,14 +105,13 @@ class MainClass:
         return result
 
     def export_to_csv(self, _input, _output):
-        if self.args.report_csv != None:
-            path = self.args.report_csv
-            if path[-1] != "/":
-                path += "/"
+        path = self.args.report_csv_path
+        if path[-1] != "/":
+            path += "/"
 
-            date = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
-            pd.DataFrame(_input ).to_csv(path + f"input-{date}.csv")
-            pd.DataFrame(_output).to_csv(path + f"output-{date}.csv")
+        date = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
+        pd.DataFrame(_input ).to_csv(path + f"input-{date}.csv")
+        pd.DataFrame(_output).to_csv(path + f"output-{date}.csv")
 
     def run(self):
         logger.info("Going to connect to the DB")
@@ -121,7 +121,8 @@ class MainClass:
         logger.info("Gathering the data for the output Bandwith")
         _output = dg.exec_query(self.construct_query(self.args.output))
 
-        self.export_to_csv(_input, _output)
+        if self.args.report_csv:
+            self.export_to_csv(_input, _output)
 
         # Convert to numpy arrays
         _input  = np.array([x["value"] for x in _input ], dtype=np.float)
