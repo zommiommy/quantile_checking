@@ -96,7 +96,7 @@ class MainClass:
             f"""bandwith_stats_in={self.input:.0f}Mib""",
             f"""bandwith_stats_out={self.output:.0f}Mib""",
             f"""bandwith_stats_precision={self.precision:.0f}%""",
-            f"""bandwith_stats_burst={self.burst}""",
+            f"""bandwith_stats_burst={self.burst:.2f}""",
             ])
         return result
 
