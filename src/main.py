@@ -122,7 +122,7 @@ class MainClass:
         first = "-".join(today.split("-")[:2]) + "-01-00:00:00"
         logger.debug("Today is %s the first of the month is %s", today, first)
         first = datetime.fromisoformat(first)
-        delta = today - first
+        delta = datetime.today() - first
         return delta.seconds
 
     def run(self):
