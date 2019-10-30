@@ -49,7 +49,7 @@ class MainClass:
         thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros inc ase of the threshold is exceded", type=float, required=True)
         thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold", type=float, default=0.95)
         thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile", type=str, default="24h")
-        thresholds_settings.add_argument("-qt", "--quantile-type", help="How the quantilie is going to be calculated 'merging' the input and output traffic", type=str, choice=["max","common"],default="max")
+        thresholds_settings.add_argument("-qt", "--quantile-type", help="How the quantilie is going to be calculated 'merging' the input and output traffic", type=str, choices=["max","common"], default="max")
 
 
         verbosity_settings= self.parser.add_argument_group('verbosity settings (optional)')
