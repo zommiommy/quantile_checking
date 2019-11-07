@@ -200,7 +200,7 @@ class MainClass:
         byte_to_bit_coeff = 8
         return  [
             (
-                point["time"],
+                self.parse_UTC_time(point["time"]),
                 point["value"] * byte_to_bit_coeff
             )
             for point in value
