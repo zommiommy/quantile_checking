@@ -48,7 +48,7 @@ Fee settings:
 
 verbosity settings (optional):
   -v {0,1,2}, --verbosity {0,1,2}
-                        set the logging verbosity, 0 == CRITICAL, 1 == INFO, 2
+                        set the logging verbosity, 0 , 2
                         == DEBUG it defaults to ERROR.
 ```
 
@@ -63,3 +63,16 @@ Oppure usando il wrapper che va ad usare l'environment `quantile_env`:
 $ ./bin/quantile_checker -M disk -S Diskspace -H test.local.it -I Win -O Win --max 1000 -p 3
 Il 95th percentile calcolato e' 261745Mib | bandwith_stats_95th=261745Mib, bandwith_stats_max=261749Mib, bandwith_stats_in=128200Mib, bandwith_stats_out=128200Mib, bandwith_stats_precision=1%, bandwith_stats_burst=1
 ```
+### Modalita' di calcolo del 95-th percentile
+Poiche' Input ed Output sono metriche diverse bisogna aggregare il calcolo per avere una unica threshold.
+Esistono varie modalita' di aggregazione, quelle implementate sono:
+- `max` il quale setta la threshold al quantile massimo tra quello di Input e di Output
+- `common` il quale calcola il quantile "unendo" i dati di input ed output.
+
+## Descrizione delle metrics
+- `bandwith_stats_95th` il percentile della banda
+- `bandwith_stats_max` il massimo valore della banda
+- `bandwith_stats_in`  media della banda in input
+- `bandwith_stats_out` media della banda in output 
+- `bandwith_stats_burst` penale calcolata sul traffico in eccesso
+- `bandwith_stats_precision`
