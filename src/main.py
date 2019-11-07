@@ -136,7 +136,7 @@ class MainClass:
             return (-1, 0), values[0]
         elif idx == len(values) - 1:
             # IF recent data miss, consider it 0 because it might be off
-            return values[-1], (len(values)x, 0)
+            return values[-1], (len(values), 0)
         else:
             # Else return the two values
             return values[idx - 1], values[idx]
