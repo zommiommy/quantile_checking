@@ -38,19 +38,21 @@ class MainClass:
 
         self.parser = MyParser(description=self.copyrights)
 
-        query_settings_r = self.parser.add_argument_group('query settings (required)')
-        query_settings_r.add_argument("-HS", "--hostname-service",     help="The hostname and service to select, those must be passed as HOSTNAME:SERVICE. One can use this argument multiple times", type=str, required=True, action="append", default=[])
-        query_settings_r.add_argument("-M", "--measurement",           help="Measurement where the data will be queried.", type=str, required=True)
-        query_settings_r.add_argument("-I", "--input",                 help="The name of the input bandwith",  type=str, default="inBandwidth")
-        query_settings_r.add_argument("-O", "--output",                help="The name of the output bandwith", type=str, default="outBandwidth")
+        required_settings = self.parser.add_argument_group('required settings')
+        required_settings.add_argument("-M", "--measurement",           help="Measurement where the data will be queried.", type=str, required=True)
+        required_settings.add_argument("-HS", "--hostname-service",     help="The hostname and service to select, those must be passed as HOSTNAME:SERVICE. One can use this argument multiple times to select multiple hosts and services", type=str, required=True, action="append", default=[])
+
+        query_settings_r = self.parser.add_argument_group('query settings')
+        query_settings_r.add_argument("-I", "--input",                 help="The name of the input bandwith metric, default-value='inBandwidth'",  type=str, default="inBandwidth")
+        query_settings_r.add_argument("-O", "--output",                help="The name of the output bandwith metric, default-value='outBandwidth'", type=str, default="outBandwidth")
         query_settings_r.add_argument("-rc", "--report-csv",           help="Flag, if enabled the data read from the DB are dumped as a CSV", default=False, action="store_true")
-        query_settings_r.add_argument("-rcp", "--report-csv-path",     help="Path where to save the data used", type=str, default="./")
+        query_settings_r.add_argument("-rcp", "--report-csv-path",     help="Path where to save the data used, default-value='./'", type=str, default="./")
 
         thresholds_settings = self.parser.add_argument_group('Fee settings')
-        thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwith usable", type=int, required=True)
-        thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros inc ase of the threshold is exceded", type=float, required=True)
-        thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold", type=float, default=0.95)
-        thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile", type=str, default=None)
+        thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwith usable in Mbit/s ", type=int, required=True)
+        thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros/(Mbit/s) in case of the threshold is exceded", type=float, required=True)
+        thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold. it must be between 0 and 1. The default value is 0.95 so the 95th percentile", type=float, default=0.95)
+        thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile, if not specified it's considered the time from the first day of the current month.", type=str, default=None)
 
         verbosity_settings= self.parser.add_argument_group('verbosity settings (optional)')
         verbosity_settings.add_argument("-v", "--verbosity", help="set the logging verbosity, 0 == CRITICAL, 1 == INFO, 2 == DEBUG it defaults to ERROR.",  type=int, choices=[0,1,2], default=0)
@@ -63,7 +65,7 @@ class MainClass:
             setLevel(logging.DEBUG)
         else:
             setLevel(logging.CRITICAL)
-        
+
         self.parse_hosts_and_services()
 
     def parse_hosts_and_services(self):
@@ -180,10 +182,10 @@ class MainClass:
         result = f"""Il {self.args.quantile * 100:.0f}th percentile calcolato e' {self.quantile:.0f}Mib"""
         result += " | "
         result += ", ".join([
-            f"""bandwith_stats_95th={self.quantile:.0f}Mib""",
-            f"""bandwith_stats_max={self.max:.0f}Mib""",
-            f"""bandwith_stats_in={self.input:.0f}Mib""",
-            f"""bandwith_stats_out={self.output:.0f}Mib""",
+            f"""bandwith_stats_95th={self.quantile:.0f}Mbit""",
+            f"""bandwith_stats_max={self.max:.0f}Mbit""",
+            f"""bandwith_stats_in={self.input:.0f}Mbit""",
+            f"""bandwith_stats_out={self.output:.0f}Mbit""",
             f"""bandwith_stats_precision={self.precision:.0f}%""",
             f"""bandwith_stats_burst={self.burst:.2f}""",
             ])
@@ -216,9 +218,11 @@ class MainClass:
             
             # Create two lists for the values of input and output
             # and convert the time from nano-seconds to seconds
+            # and from bytes to bits
             ns_to_s_coeff = 1e-9
-            _input  = [(x["time"] * ns_to_s_coeff, x["value"]) for x in _input]
-            _output = [(x["time"] * ns_to_s_coeff, x["value"]) for x in _output]
+            byte_to_bit_coeff = 8
+            _input  = [(x["time"] * ns_to_s_coeff, x["value"] * byte_to_bit_coeff) for x in _input]
+            _output = [(x["time"] * ns_to_s_coeff, x["value"] * byte_to_bit_coeff) for x in _output]
             
 
             # Aling data aligning it to 5-minutes interpolating the data
@@ -226,10 +230,10 @@ class MainClass:
             _input  = np.array(self.value_alineator(_input))
             _output = np.array(self.value_alineator(_output))
 
-            # Convert from bytes to Mib
-            bytes_to_Mib_coeff = (1024*1024)
-            _input  /= bytes_to_Mib_coeff
-            _output /= bytes_to_Mib_coeff
+            # Convert from bytes to Mbit
+            bit_to_Mbit_coeff = (1024*1024)
+            _input  /= bit_to_Mbit_coeff
+            _output /= bit_to_Mbit_coeff
 
             # Update the total_input bandwith by summing all the traffic
             total_input_bandwith  += _input
@@ -237,8 +241,8 @@ class MainClass:
 
             # Select the puntual maximum
             _value = np.array(
-                [max(i, o) for i, o in zip(_input, _output)]
-                , dtype=np.float)
+                [max(i, o) for i, o in zip(_input, _output)],
+                dtype=np.float)
             # Update the total puntual maximum
             total_bandwith_value += _value
 

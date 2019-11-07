@@ -11,6 +11,7 @@ from typing import List, Tuple, Dict, Union
 from influxdb import InfluxDBClient
 
 class DataGetter:
+    """Class for the basic logic of accessing and executing a query to the DB"""
     setting_file = "/db_settings.json"
 
     def __init__(self):
@@ -37,6 +38,7 @@ class DataGetter:
             self.client.close()
 
     def exec_query(self, query : str):
+        """Escape the \ in the query, Execute the query, return the result as list of dictionaries"""
         # Construct the query to workaround the tags distinct constraint
         query = query.replace("\\", "\\\\")
         logger.info(f"Executing query [{query}]")

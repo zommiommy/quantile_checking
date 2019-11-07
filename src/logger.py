@@ -1,4 +1,6 @@
 
+# File for the setup of a global configured logger
+
 import sys
 import logging
 
