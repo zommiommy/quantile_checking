@@ -173,12 +173,7 @@ class MainClass:
     def calculate_statistics(self, _input, _output, _value, total_precision):
         """Calculate all the metrics for the values"""
         # Calculate the quantile
-        index = int(len(_value) * self.args.quantile)
-        _value.sort()
-        cutted_values = _value[:index]
-        self.quantile = np.max(cutted_values)
-        # Alternative method
-        # self.quantile  = np.quantile(_value,  self.args.quantile)
+        self.quantile  = np.quantile(_value,  self.args.quantile)
 
         self.max    = max(_value)
         self.input  = np.mean(_input)
