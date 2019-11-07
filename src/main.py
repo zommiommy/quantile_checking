@@ -104,13 +104,13 @@ class MainClass:
         """Get the first day of this month"""
         today = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
         first = "-".join(today.split("-")[:2]) + "-01-00:00:00"
-        logger.info("Today is %s the first of the month is %s", today, first)
+        logger.debug("Today is %s the first of the month is %s", today, first)
         return datetime.fromisoformat(first)
 
     def get_seconds_from_first_of_month(self):
         """Return how many seconds have passed form the first of the month"""
         first = self.get_first_of_month()
-        logger.info(datetime.today())
+        logger.debug(f"Today is {datetime.today()}")
         delta = datetime.today() - first
         return float(delta.total_seconds())
 
@@ -134,13 +134,16 @@ class MainClass:
         idx = np.searchsorted(times, timestamp, side="left")
         if idx <= 0:
             # IF the data it's the first, consider it starting from 0
-            return (-1, 0), values[0]
+            result = ((values[-1][0] - 5, 0), values[0])
         elif idx >= len(values):
             # IF recent data miss, consider it 0 because it might be off
-            return values[-1], (len(values), 0)
+            result = (values[-1], (values[-1][0] + 5, 0))
         else:
             # Else return the two values
-            return values[idx - 1], values[idx]
+            result = (values[idx - 1], values[idx])
+
+        assert result[0][0] < timestamp < result[1][0]
+        return result
 
     def interpolate(self, values, timestamp):
         """Linear inerpolation of the values https://en.wikipedia.org/wiki/Linear_interpolation"""
@@ -274,4 +277,7 @@ class MainClass:
         print(result)
 
 if __name__ == "__main__":
-    MainClass().run()
+    print("START")
+    print(MainClass().get_seconds_from_first_of_month())
+    print(MainClass().get_time_grid())
+    #MainClass().run()
