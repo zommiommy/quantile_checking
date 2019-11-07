@@ -156,7 +156,7 @@ class MainClass:
         idx = np.searchsorted(times, timestamp, side="left")
         if idx <= 0:
             # IF the data it's the first, consider it starting from 0
-            result = ((values[0][0] - 5, 0), values[0])
+            result = ((timestamp, 0), values[0])
         elif values[-1][0] < timestamp:
             # IF the timestamp is bigger than the last timestamp of the values
             result = (values[-1], (timestamp, 0))
