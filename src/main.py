@@ -112,7 +112,7 @@ class MainClass:
         first = self.get_first_of_month()
         logger.info(datetime.today())
         delta = datetime.today() - first
-        return delta.seconds
+        return delta.total_seconds()
 
     def get_time_grid(self):
         """Return the array of timestamps from the 00:00 of the first of the month using steps of 5 minutes.
@@ -238,13 +238,14 @@ class MainClass:
             _output = self.normalize_data(_output)
             
 
+            pd.DataFrame(_input).to_csv(f"./test.csv")
+
             # Aling data aligning it to 5-minutes interpolating the data
             logger.info(f"Aligning the data to setp of 5 minutes from the first day of the month")
             _input  = np.array(self.value_aligner(_input))
             _output = np.array(self.value_aligner(_output))
-            logger.debug(f"input {_input}")
-            logger.debug(f"input {_output}")
 
+            pd.DataFrame(_input).to_csv(f"./test_aligned.csv")
 
             # Convert from bytes to Mbit
             bit_to_Mbit_coeff = (1024*1024)
