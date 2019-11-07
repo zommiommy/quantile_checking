@@ -163,7 +163,8 @@ class MainClass:
         """Calculate all the metrics for the values"""
         # Calculate the quantile
         index = int(len(_value) * self.args.quantile)
-        cutted_values = _value.sort()[:index]
+        _value.sort()
+        cutted_values = _value[:index]
         self.quantile = np.max(cutted_values)
         # Alternative method
         # self.quantile  = np.quantile(_value,  self.args.quantile)
