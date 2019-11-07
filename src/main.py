@@ -206,9 +206,9 @@ class MainClass:
         for host, service in self.host_and_services:
             logger.info(f"Analyzing {host}:{service}")
             logger.info("Gathering the data for the input Bandwith")
-            _input  = dg.exec_query(self.construct_query(self.args.input))
+            _input  = dg.exec_query(self.construct_query(self.args.input, host, service))
             logger.info("Gathering the data for the output Bandwith")
-            _output = dg.exec_query(self.construct_query(self.args.output))
+            _output = dg.exec_query(self.construct_query(self.args.output, host, service))
 
             if self.args.report_csv:
                 self.export_to_csv(host, service, _input, _output)
