@@ -126,7 +126,7 @@ class MainClass:
 
     def get_closest_points(self, values, timestamp):
         """Find the two closest point to the timestamp, a[i-1] < v <= a[i]"""
-        times = np.array((x[0] for x in values))
+        times = np.array([x[0] for x in values])
         # ASSUMPTION the values must be sorted, this should not be a problem since INFLUX should sort them for us
         # ASSUMPTION the value ar sorted from the smallest to the biggest
         # Chosen the left so a[i-1] < v <= a[i] so it can works if the point has the same timestamp of the analysis
