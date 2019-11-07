@@ -127,13 +127,23 @@ class MainClass:
     def get_time_grid(self):
         """Return the array of timestamps from the 00:00 of the first of the month using steps of 5 minutes.
         e.g. [2019/10/01-00:00:00, 2019/10/01-00:05:00, 2019/10/01-00:10:00] but in timestamp.""" 
-        start = self.get_first_of_month()
-        # Rounding the values to the LAST multiple of 5 minutes. 18:28 will be rounded to 18:25
-        n_of_points = int(self.get_seconds_from_first_of_month() / (5 * 60)) 
-        return [
-            datetime.timestamp(start + timedelta(minutes=5*i))
-            for i in range(n_of_points)
-        ]
+        if self.args.end == None and self.args.start == None:
+            start = self.get_first_of_month()
+            # Rounding the values to the LAST multiple of 5 minutes. 18:28 will be rounded to 18:25
+            n_of_points = int(self.get_seconds_from_first_of_month() / (5 * 60)) 
+            return [
+                datetime.timestamp(start + timedelta(minutes=5*i))
+                for i in range(n_of_points)
+            ]
+        else:
+            start = self.parse_UTC_time(self.args.start)
+            end   = self.parse_UTC_time(self.args.end)
+            n_of_points = int((end - start) / (5 * 60)) 
+            return [
+                start + (5*60*i)
+                for i in range(n_of_points)
+            ]
+            
 
     def get_closest_points(self, values, timestamp):
         """Find the two closest point to the timestamp, a[i-1] < v <= a[i]"""
@@ -213,7 +223,17 @@ class MainClass:
 
     def parse_UTC_time(self, time):
         """Parse an UTC time to epoch"""
-        return datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ").timestamp()
+        try:
+            return datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ").timestamp()
+        except ValueError:
+            pass
+
+        try:
+            return datetime.strptime(time, "%Y-%m-%d").timestamp()
+        except ValueError:
+            pass
+
+        raise ValueError(f"Cannot parse date {time}")
 
     def normalize_data(self, value):
         """Convert the list of dictionaries to a list of (time, value) and convert the value from bytes to bits"""
