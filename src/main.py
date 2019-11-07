@@ -53,6 +53,8 @@ class MainClass:
         thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros/(Mbit/s) in case of the threshold is exceded", type=float, required=True)
         thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold. it must be between 0 and 1. The default value is 0.95 so the 95th percentile", type=float, default=0.95)
         thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile, if not specified it's considered the time from the first day of the current month.", type=str, default=None)
+        thresholds_settings.add_argument("-e", "--end",        help="From when the analysis must end, if not setted it defaults to now ", type=str, default=None)
+
 
         verbosity_settings= self.parser.add_argument_group('verbosity settings (optional)')
         verbosity_settings.add_argument("-v", "--verbosity", help="set the logging verbosity, 0 == CRITICAL, 1 == INFO, 2 == DEBUG it defaults to ERROR.",  type=int, choices=[0,1,2], default=0)
@@ -88,7 +90,10 @@ class MainClass:
         if dic["time"] == None:
             dic["time"] = f"{self.get_seconds_from_first_of_month():.0f}s"
 
-        return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time}) """.format(**dic)
+        if dic["end"] == None:
+            dic["end"] == "now()"
+
+        return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > ({end} - {time}) """.format(**dic)
 
     def export_to_csv(self, host, service, _input, _output):
         """Export the data to csv"""
@@ -185,7 +190,7 @@ class MainClass:
         else:
             self.burst = 0
         
-        self.precision = 100*total_precision / len(self.host_and_services)
+        self.precision = 100 * total_precision / len(self.host_and_services)
 
     def format_result(self):
         """Print in the standard way the metrics so that telegraph can parse them"""
@@ -234,6 +239,9 @@ class MainClass:
             _input  = dg.exec_query(self.construct_query(self.args.input, host, service))
             logger.info("Gathering the data for the output Bandwith")
             _output = dg.exec_query(self.construct_query(self.args.output, host, service))
+
+            assert all(x['unit'] == "bytes" for x in _input),  "some data in input  are not in bytes"
+            assert all(x['unit'] == "bytes" for x in _output), "some data in output are not in bytes"
 
             logger.info(f"Test mean input  {np.mean([x['value'] for x in _input])}")
             logger.info(f"Test mean output {np.mean([x['value'] for x in _output])}")
