@@ -88,7 +88,7 @@ class MainClass:
         if dic["time"] == None:
             dic["time"] = f"{self.get_seconds_from_first_of_month()}s"
 
-        return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {float(time):.0f}) """.format(**dic)
+        return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time:.0f}) """.format(**dic)
 
     def export_to_csv(self, host, service, _input, _output):
         """Export the data to csv"""
@@ -112,7 +112,7 @@ class MainClass:
         first = self.get_first_of_month()
         logger.info(datetime.today())
         delta = datetime.today() - first
-        return delta.total_seconds()
+        return float(delta.total_seconds())
 
     def get_time_grid(self):
         """Return the array of timestamps from the 00:00 of the first of the month using steps of 5 minutes.
