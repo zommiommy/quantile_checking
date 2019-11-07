@@ -96,9 +96,9 @@ class MainClass:
             dic["time"] = f"{self.get_seconds_from_first_of_month():.0f}s"
 
         if dic["start"] != None and dic["end"] != None:
-            return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > '{start}' AND "time" < '{end}'""".format(**dic)
+            return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > '{start}' AND "time" < '{end}' ORDER BY time ASC """.format(**dic)
         else:
-            return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time}) """.format(**dic)
+            return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time})  ORDER BY time ASC """.format(**dic)
 
     def export_to_csv(self, host, service, _input, _output):
         """Export the data to csv"""
@@ -156,7 +156,7 @@ class MainClass:
         idx = np.searchsorted(times, timestamp, side="left")
         if idx <= 0:
             # IF the data it's the first, consider it starting from 0
-            result = ((values[-1][0] - 5, 0), values[0])
+            result = ((values[0][0] - 5, 0), values[0])
         elif values[-1][0] < timestamp:
             # IF the timestamp is bigger than the last timestamp of the values
             result = (values[-1], (timestamp, 0))
