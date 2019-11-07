@@ -237,8 +237,8 @@ class MainClass:
             logger.info("Gathering the data for the output Bandwith")
             _output = dg.exec_query(self.construct_query(self.args.output, host, service))
 
-            logger.info(f"Test mean input  {np.mean([x["value"] for x in _input])}")
-            logger.info(f"Test mean output {np.mean([x["value"] for x in _output])}")
+            logger.info(f"Test mean input  {np.mean([x['value'] for x in _input])}")
+            logger.info(f"Test mean output {np.mean([x['value'] for x in _output])}")
 
             if self.args.report_csv:
                 self.export_to_csv(host, service, _input, _output)
