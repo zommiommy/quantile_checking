@@ -247,15 +247,10 @@ class MainClass:
             _input = self.normalize_data(_input)
             _output = self.normalize_data(_output)
             
-
-            pd.DataFrame(_input).to_csv(f"./test.csv")
-
             # Aling data aligning it to 5-minutes interpolating the data
             logger.info(f"Aligning the data to setp of 5 minutes from the first day of the month")
             _input  = np.array(self.value_aligner(_input))
             _output = np.array(self.value_aligner(_output))
-
-            pd.DataFrame(_input).to_csv(f"./test_aligned.csv")
 
             # Convert from bytes to Mbit
             bit_to_Mbit_coeff = (1024*1024)
