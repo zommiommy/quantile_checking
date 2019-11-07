@@ -104,12 +104,13 @@ class MainClass:
         """Get the first day of this month"""
         today = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
         first = "-".join(today.split("-")[:2]) + "-01-00:00:00"
-        logger.debug("Today is %s the first of the month is %s", today, first)
+        logger.info("Today is %s the first of the month is %s", today, first)
         return datetime.fromisoformat(first)
 
     def get_seconds_from_first_of_month(self):
         """Return how many seconds have passed form the first of the month"""
         first = self.get_first_of_month()
+        logger.info(datetime.today())
         delta = datetime.today() - first
         return delta.seconds
 
@@ -180,7 +181,7 @@ class MainClass:
 
     def format_result(self):
         """Print in the standard way the metrics so that telegraph can parse them"""
-        result = f"""Il {self.args.quantile * 100:.0f}th percentile calcolato e' {self.quantile:.0f}Mib"""
+        result = f"""Il {self.args.quantile * 100:.0f}th percentile calcolato e' {self.quantile:.0f}Mbit"""
         result += " | "
         result += ", ".join([
             f"""bandwith_stats_95th={self.quantile:.0f}Mbit""",
@@ -241,6 +242,9 @@ class MainClass:
             logger.info(f"Aligning the data to setp of 5 minutes from the first day of the month")
             _input  = np.array(self.value_aligner(_input))
             _output = np.array(self.value_aligner(_output))
+            logger.debug(f"input {_input}")
+            logger.debug(f"input {_output}")
+
 
             # Convert from bytes to Mbit
             bit_to_Mbit_coeff = (1024*1024)
