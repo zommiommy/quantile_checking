@@ -166,7 +166,7 @@ class MainClass:
             result = (values[idx - 1], values[idx])
 
         logger.debug(f"Closest {result[0][0]} <= {timestamp} <= {result[1][0]}")
-        assert result[0][0] <= timestamp <= result[1][0], "ERROR IN INTERPOLATION"
+        assert result[0][0] <= timestamp <= result[1][0], f"ERROR IN INTERPOLATION {result[0][0]} < {timestamp} < {result[1][0]}"
         return result
 
     def interpolate(self, values, timestamp):
