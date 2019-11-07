@@ -40,7 +40,7 @@ class MainClass:
 
         required_settings = self.parser.add_argument_group('required settings')
         required_settings.add_argument("-M", "--measurement",           help="Measurement where the data will be queried.", type=str, required=True)
-        required_settings.add_argument("-HS", "--hostname-service",     help="The hostname and service to select, those must be passed as HOSTNAME:SERVICE. One can use this argument multiple times to select multiple hosts and services", type=str, required=True, action="append", default=[])
+        required_settings.add_argument("-HS", "--hostname-service",     help="The hostname and service to select, those must be passed as HOSTNAME|SERVICE. One can use this argument multiple times to select multiple hosts and services", type=str, required=True, action="append", default=[])
 
         query_settings_r = self.parser.add_argument_group('query settings')
         query_settings_r.add_argument("-I", "--input",                 help="The name of the input bandwith metric, default-value='inBandwidth'",  type=str, default="inBandwidth")
@@ -69,11 +69,11 @@ class MainClass:
         self.parse_hosts_and_services()
 
     def parse_hosts_and_services(self):
-        """Split and validate the data from HOST:SERVICE"""
-        splitted = [x.split(":") for x in self.args.hostname_service]
+        """Split and validate the data from HOST|SERVICE"""
+        splitted = [x.split("|") for x in self.args.hostname_service]
         errored = [x for x in splitted if len(x) != 2]
         if len(errored):
-            logger.error(f"Error parsing hostname and service, the values [{errored}] cannot be parsed as HOSTNAME:SERVICE")
+            logger.error(f"Error parsing hostname and service, the values [{errored}] cannot be parsed as HOSTNAME|SERVICE")
             sys.exit(1)
 
         self.host_and_services = splitted

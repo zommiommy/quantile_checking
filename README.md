@@ -27,7 +27,7 @@ required settings:
                         Measurement where the data will be queried.
   -HS HOSTNAME_SERVICE, --hostname-service HOSTNAME_SERVICE
                         The hostname and service to select, those must be
-                        passed as HOSTNAME:SERVICE. One can use this argument
+                        passed as HOSTNAME|SERVICE. One can use this argument
                         multiple times to select multiple hosts and services
 
 query settings:
@@ -64,18 +64,18 @@ verbosity settings (optional):
 ## Esempio di utilizzo
 Chiamamando lo script direttamente:
 ```bash
-$ python src/main.py -M disk -HS test.local.it:Diskspace -I Win -O Win --max 1000 -p 3
+$ python src/main.py -M disk -HS test.local.it|Diskspace -I Win -O Win --max 1000 -p 3
 Il 95th percentile calcolato e' 261745Mib | bandwith_stats_95th=261745Mib, bandwith_stats_max=261749Mib, bandwith_stats_in=128200Mib, bandwith_stats_out=128200Mib, bandwith_stats_precision=1%, bandwith_stats_burst=1
 ```
 Oppure usando il wrapper che va ad usare l'environment `quantile_env`:
 ```bash
-$ ./bin/quantile_checker -M disk -HS test.local.it:Diskspace  -I Win -O Win --max 1000 -p 3
+$ ./bin/quantile_checker -M disk -HS test.local.it|Diskspace  -I Win -O Win --max 1000 -p 3
 Il 95th percentile calcolato e' 261745Mib | bandwith_stats_95th=261745Mib, bandwith_stats_max=261749Mib, bandwith_stats_in=128200Mib, bandwith_stats_out=128200Mib, bandwith_stats_precision=1%, bandwith_stats_burst=1
 ```
 
 Inoltre e' possibile specificare piu' host e servizi:
 ```bash
-$ ./bin/quantile_checker -M disk -HS test1.local.it:Diskspace -HS test1.local.it:CpuUsage -HS test2.local.it:Diskspace -I Win -O Win --max 1000 -p 3
+$ ./bin/quantile_checker -M disk -HS test1.local.it|Diskspace -HS test1.local.it|CpuUsage -HS test2.local.it|Diskspace -I Win -O Win --max 1000 -p 3
 Il 95th percentile calcolato e' 261745Mib | bandwith_stats_95th=261745Mib, bandwith_stats_max=261749Mib, bandwith_stats_in=128200Mib, bandwith_stats_out=128200Mib, bandwith_stats_precision=1%, bandwith_stats_burst=1
 ```
 
