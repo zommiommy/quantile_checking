@@ -282,7 +282,4 @@ class MainClass:
         print(result)
 
 if __name__ == "__main__":
-    print("START")
-    print(MainClass().get_seconds_from_first_of_month())
-    print(MainClass().get_time_grid())
-    #MainClass().run()
+    MainClass().run()
