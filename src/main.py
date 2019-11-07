@@ -212,7 +212,7 @@ class MainClass:
 
     def normalize_data(self, value):
         """Convert the list of dictionaries to a list of (time, value) and convert the value from bytes to bits"""
-        byte_to_bit_coeff = 8
+        byte_to_bit_coeff = 1 # 1 instead of 8 beacuse there are problem in the influxdb where instead of bytes the data are saved as bits
         return  [
             (
                 self.parse_UTC_time(point["time"]),
