@@ -185,7 +185,7 @@ class MainClass:
         else:
             self.burst = 0
         
-        self.precision = total_precision / len(self.host_and_services)
+        self.precision = 100*total_precision / len(self.host_and_services)
 
     def format_result(self):
         """Print in the standard way the metrics so that telegraph can parse them"""
