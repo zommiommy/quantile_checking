@@ -199,7 +199,7 @@ class MainClass:
             (
                 [
                     x * ns_to_s_coeff
-                    for point in ["time"]
+                    for x in point["time"]
                 ],
                 [
                     x * byte_to_bit_coeff
