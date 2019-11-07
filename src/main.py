@@ -191,6 +191,24 @@ class MainClass:
             ])
         return result
 
+    def normalize_data(self, value):
+        """Convert the list of dictionaries to a list of (time, value) and convert the time from nanoseconds to seconds and the value from bytes to bits"""
+        ns_to_s_coeff = 1e-9
+        byte_to_bit_coeff = 8
+        return  [
+            (
+                [
+                    x * ns_to_s_coeff
+                    for point in ["time"]
+                ],
+                [
+                    x * byte_to_bit_coeff
+                    for x in point["value"]
+                ]
+            )
+            for point in value
+        ]
+
     def run(self):
         """Main routine, it gather the data from all the host and services and it calculate the statistics on them"""
         logger.info("Going to connect to the DB")
@@ -216,13 +234,9 @@ class MainClass:
             # Calculate the precision
             total_precision += (min(len(_input), len(_output)) / n_of_points)
             
-            # Create two lists for the values of input and output
-            # and convert the time from nano-seconds to seconds
-            # and from bytes to bits
-            ns_to_s_coeff = 1e-9
-            byte_to_bit_coeff = 8
-            _input  = [(x["time"] * ns_to_s_coeff, x["value"] * byte_to_bit_coeff) for x in _input]
-            _output = [(x["time"] * ns_to_s_coeff, x["value"] * byte_to_bit_coeff) for x in _output]
+            # Create two lists for the values of input and output in the form of [(t, v), ...]
+            _input = self.normalize_data(_input)
+            _output = self.normalize_data(_output)
             
 
             # Aling data aligning it to 5-minutes interpolating the data
