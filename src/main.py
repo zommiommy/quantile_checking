@@ -133,13 +133,13 @@ class MainClass:
         idx = np.searchsorted(times, timestamp, side="left")
         if idx == 0:
             # IF the data it's the first, consider it starting from 0
-            return 0, values[0]
-        elif idx == len(values):
+            return (-1, 0), values[0]
+        elif idx == len(values) - 1:
             # IF recent data miss, consider it 0 because it might be off
-            return values[-1], 0
+            return values[-1], (len(values)x, 0)
         else:
             # Else return the two values
-            return values[idx - 1][1], values[idx][1]
+            return values[idx - 1], values[idx]
 
     def interpolate(self, values, timestamp):
         """Linear inerpolation of the values https://en.wikipedia.org/wiki/Linear_interpolation"""
