@@ -191,20 +191,17 @@ class MainClass:
             ])
         return result
 
+    def parse_UTC_time(self, time):
+        """Parse an UTC time to epoch"""
+        return datetime.datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ").timestamp()
+
     def normalize_data(self, value):
-        """Convert the list of dictionaries to a list of (time, value) and convert the time from nanoseconds to seconds and the value from bytes to bits"""
-        ns_to_s_coeff = 1e-9
+        """Convert the list of dictionaries to a list of (time, value) and convert the value from bytes to bits"""
         byte_to_bit_coeff = 8
         return  [
             (
-                [
-                    x * ns_to_s_coeff
-                    for x in point["time"]
-                ],
-                [
-                    x * byte_to_bit_coeff
-                    for x in point["value"]
-                ]
+                point["time"],
+                point["value"] * byte_to_bit_coeff
             )
             for point in value
         ]
