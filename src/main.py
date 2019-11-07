@@ -53,6 +53,7 @@ class MainClass:
         thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros/(Mbit/s) in case of the threshold is exceded", type=float, required=True)
         thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold. it must be between 0 and 1. The default value is 0.95 so the 95th percentile", type=float, default=0.95)
         thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile, if not specified it's considered the time from the first day of the current month.", type=str, default=None)
+        thresholds_settings.add_argument("-s", "--start",        help="From when the analysis must start, if not setted it defaults to now ", type=str, default=None)
         thresholds_settings.add_argument("-e", "--end",        help="From when the analysis must end, if not setted it defaults to now ", type=str, default=None)
 
 
@@ -67,6 +68,10 @@ class MainClass:
             setLevel(logging.DEBUG)
         else:
             setLevel(logging.CRITICAL)
+
+        if (self.args.start  != None and self.args.end == None) or (self.args.start == None and self.args.end != None):
+            logger.error("Or both the parameter -s/--start and -e/--end are set or none of them.")
+
 
         self.parse_hosts_and_services()
 
@@ -90,10 +95,10 @@ class MainClass:
         if dic["time"] == None:
             dic["time"] = f"{self.get_seconds_from_first_of_month():.0f}s"
 
-        if dic["end"] == None:
-            dic["end"] = "now()"
-
-        return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > ({end} - {time}) """.format(**dic)
+        if dic["start"] != None and dic["end"] != None:
+            return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" => '{start}' AND "time" <= '{end}'""".format(**dic)
+        else:
+            return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time}) """.format(**dic)
 
     def export_to_csv(self, host, service, _input, _output):
         """Export the data to csv"""
