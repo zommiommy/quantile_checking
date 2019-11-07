@@ -145,7 +145,7 @@ class MainClass:
         """Linear inerpolation of the values https://en.wikipedia.org/wiki/Linear_interpolation"""
         t_0, v_0 = values[0][0], values[0][1]
         t_1, v_1 = values[1][0], values[1][1]
-        result = v_0 * (t_1 - t_0) + v_1 * (timestamp - t_0_)
+        result = v_0 * (t_1 - t_0) + v_1 * (timestamp - t_0)
         return result / (t_1 - t_0)
 
     def value_aligner(self, values):
