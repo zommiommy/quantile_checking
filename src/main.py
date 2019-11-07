@@ -135,22 +135,29 @@ class MainClass:
         if idx <= 0:
             # IF the data it's the first, consider it starting from 0
             result = ((values[-1][0] - 5, 0), values[0])
+        elif values[-1][0] < timestamp:
+            # IF the timestamp is bigger than the last timestamp of the values
+            result = (values[-1], (timestamp, 0))
         elif idx >= len(values):
             # IF recent data miss, consider it 0 because it might be off
-            result = (values[-1], (values[-1][0] + 5, 0))
+            result = (values[-1], (timestamp, 0))
         else:
             # Else return the two values
             result = (values[idx - 1], values[idx])
 
-        assert result[0][0] < timestamp < result[1][0]
+        logger.debug(f"Closest {result[0][0]} <= {timestamp} <= {result[1][0]}")
+        assert result[0][0] <= timestamp <= result[1][0], "ERROR IN INTERPOLATION"
         return result
 
     def interpolate(self, values, timestamp):
         """Linear inerpolation of the values https://en.wikipedia.org/wiki/Linear_interpolation"""
         t_0, v_0 = values[0][0], values[0][1]
         t_1, v_1 = values[1][0], values[1][1]
-        result = v_0 * (t_1 - t_0) + v_1 * (timestamp - t_0)
-        return result / (t_1 - t_0)
+        result  = (v_0 * (t_1 - timestamp)) 
+        result += (v_1 * (timestamp - t_0))
+        result /= (t_1 - t_0)
+        assert min(v_0,v_1) <= result <= max(v_0,v_1)
+        return result
 
     def value_aligner(self, values):
         """Interpolate data so that we have aligned data at each 5 minutes"""
