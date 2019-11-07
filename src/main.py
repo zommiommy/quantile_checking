@@ -132,10 +132,10 @@ class MainClass:
         # ASSUMPTION the value ar sorted from the smallest to the biggest
         # Chosen the left so a[i-1] < v <= a[i] so it can works if the point has the same timestamp of the analysis
         idx = np.searchsorted(times, timestamp, side="left")
-        if idx == 0:
+        if idx <= 0:
             # IF the data it's the first, consider it starting from 0
             return (-1, 0), values[0]
-        elif idx == len(values) - 1:
+        elif idx >= len(values):
             # IF recent data miss, consider it 0 because it might be off
             return values[-1], (len(values), 0)
         else:
