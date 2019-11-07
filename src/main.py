@@ -193,7 +193,7 @@ class MainClass:
 
     def parse_UTC_time(self, time):
         """Parse an UTC time to epoch"""
-        return datetime.datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ").timestamp()
+        return datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ").timestamp()
 
     def normalize_data(self, value):
         """Convert the list of dictionaries to a list of (time, value) and convert the value from bytes to bits"""
