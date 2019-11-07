@@ -88,7 +88,7 @@ class MainClass:
         if dic["time"] == None:
             dic["time"] = f"{self.get_seconds_from_first_of_month()}s"
 
-        return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time}) """.format(**dic)
+        return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time:.0f}) """.format(**dic)
 
     def export_to_csv(self, host, service, _input, _output):
         """Export the data to csv"""
