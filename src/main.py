@@ -119,7 +119,7 @@ class MainClass:
         e.g. [2019/10/01-00:00:00, 2019/10/01-00:05:00, 2019/10/01-00:10:00] but in timestamp.""" 
         start = self.get_first_of_month()
         # Rounding the values to the LAST multiple of 5 minutes. 18:28 will be rounded to 18:25
-        n_of_points = self.get_seconds_from_first_of_month() // (5 * 60) 
+        n_of_points = int(self.get_seconds_from_first_of_month() / (5 * 60)) 
         return [
             datetime.timestamp(start + timedelta(minutes=5*i))
             for i in range(n_of_points)
