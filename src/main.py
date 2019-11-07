@@ -96,7 +96,7 @@ class MainClass:
             dic["time"] = f"{self.get_seconds_from_first_of_month():.0f}s"
 
         if dic["start"] != None and dic["end"] != None:
-            return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" => '{start}' AND "time" <= '{end}'""".format(**dic)
+            return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > '{start}' AND "time" < '{end}'""".format(**dic)
         else:
             return """SELECT time, hostname, service, metric, value, unit FROM {measurement} WHERE "hostname" = '{hostname}' AND "service" = '{service}' AND "metric" = '{metric}' AND "time" > (now() - {time}) """.format(**dic)
 
