@@ -178,7 +178,7 @@ class MainClass:
         result  = (v_0 * (t_1 - timestamp)) 
         result += (v_1 * (timestamp - t_0))
         result /= (t_1 - t_0)
-        assert min(v_0,v_1) <= result <= max(v_0,v_1)
+        assert min(v_0,v_1) <= result <= max(v_0,v_1), f"{min(v_0,v_1)} <= {result} <= {max(v_0,v_1)}"
         return result
 
     def value_aligner(self, values):
