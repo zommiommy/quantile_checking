@@ -80,7 +80,7 @@ E viceversa se il segmento e' descrescente invece che crescente.
 
 **Inoltre, se vi e' un crash e quindi per lunghi periodi andremo a non avere punti, il consumo effettivo sara' leggermnete sovra-stimato poiche' non avremo il "buco" ma un segmento che unisce l'ultimo dato prima del buco e il primo dopo.**
 
-Quindi se il primo dato dopo il "buco" coincide con l'ultimo prima, andremo ad analizzare come se il consumo fosse stato costante!
+Quindi se il primo dato dopo il "buco" coincide con l'ultimo prima, andremo ad analizzare come se il consumo fosse stato costante! Questo pero' non e' un problema nel caso si compri il servizio in base alla banda massima utilizzabile invece che sul utilizzo.
 
 
 # Implementazione
