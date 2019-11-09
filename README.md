@@ -4,7 +4,7 @@ Script che legge i dati **dal primo del mese a questo istante** di input ed outp
 # Introduzione
 
 ### Spiegazione di quantile
-Supponiamo di avere dei dati di bandwith in ingresso da uno switch:
+Supponiamo di avere dei dati di bandwidth in ingresso da uno switch:
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/singolo_valore_iniziale.png)
 
 Per calcolare il quantile, la prima cosa da fare e' ordinare tutti i valori dal piu' piccolo al piu' grande:
@@ -22,7 +22,7 @@ Il che si traduce nel fatto che sul grafico orignale avremo il 5% dei punti **so
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/singolo_valore_esempio.png)
 
 ## Come aggreghiamo Input ed Output?
-Nel esempio dello switch avremo sia bandwith di input che di output:
+Nel esempio dello switch avremo sia bandwidth di input che di output:
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/in_out_iniziale.png)
 
 Quello che andremo a fare e' prendere il **massimo puntuale**, quindi per ogni istante di tempo prendiamo il massimo valore tra input ed output:
@@ -39,7 +39,9 @@ Ci troveremo in una situazione come la seguente:
 
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/multipli_iniziale.png)
 
-Per ottenere il massimo consumo di bandwith del servizio dovremo sommare i massimi di bandwith utilizzate dagli switches.
+Andremo ad sommare i massimi di bandwidth utilizzate dagli switches.
+Cosi da ottenere efettivamente il massimo consumo di bandwidth del servizio.
+Per ottenere il massimo consumo di bandwidth del servizio dovremo sommare i massimi di bandwidth utilizzate dagli switches.
 
 Pero' insorge un problema, per poter sommare i **punti** devono avere **lo stesso timestamp**.
 
@@ -115,10 +117,10 @@ required settings:
 
 query settings:
   -I INPUT, --input INPUT
-                        The name of the input bandwith metric, default-
+                        The name of the input bandwidth metric, default-
                         value='inBandwidth'
   -O OUTPUT, --output OUTPUT
-                        The name of the output bandwith metric, default-
+                        The name of the output bandwidth metric, default-
                         value='outBandwidth'
   -rc, --report-csv     Flag, if enabled the data read from the DB are dumped
                         as a CSV
@@ -126,7 +128,7 @@ query settings:
                         Path where to save the data used, default-value='./'
 
 Fee settings:
-  -m MAX, --max MAX     The maxiumum ammount of Bandwith usable in Mbit/s
+  -m MAX, --max MAX     The maxiumum ammount of Bandwidth usable in Mbit/s
   -p PENALTY, --penalty PENALTY
                         The fee in euros/(Mbit/s) in case of the threshold is
                         exceded
@@ -148,18 +150,18 @@ verbosity settings (optional):
 Chiamamando lo script direttamente:
 ```bash
 $ python src/main.py -M disk -HS test.local.it|Diskspace -I Win -O Win --max 1000 -p 3
-Il 95th percentile calcolato e' 261745Mib | bandwith_stats_95th=261745Mib, bandwith_stats_max=261749Mib, bandwith_stats_in=128200Mib, bandwith_stats_out=128200Mib, bandwith_stats_precision=1%, bandwith_stats_burst=1
+Il 95th percentile calcolato e' 261745Mib | bandwidth_stats_95th=261745Mib, bandwidth_stats_max=261749Mib, bandwidth_stats_in=128200Mib, bandwidth_stats_out=128200Mib, bandwidth_stats_precision=1%, bandwidth_stats_burst=1
 ```
 Oppure usando il wrapper che va ad usare l'environment `quantile_env`:
 ```bash
 $ ./bin/quantile_checker -M disk -HS test.local.it|Diskspace  -I Win -O Win --max 1000 -p 3
-Il 95th percentile calcolato e' 261745Mib | bandwith_stats_95th=261745Mib, bandwith_stats_max=261749Mib, bandwith_stats_in=128200Mib, bandwith_stats_out=128200Mib, bandwith_stats_precision=1%, bandwith_stats_burst=1
+Il 95th percentile calcolato e' 261745Mib | bandwidth_stats_95th=261745Mib, bandwidth_stats_max=261749Mib, bandwidth_stats_in=128200Mib, bandwidth_stats_out=128200Mib, bandwidth_stats_precision=1%, bandwidth_stats_burst=1
 ```
 
 Inoltre e' possibile specificare piu' host e servizi:
 ```bash
 $ ./bin/quantile_checker -M disk -HS test1.local.it|Diskspace -HS test1.local.it|CpuUsage -HS test2.local.it|Diskspace -I Win -O Win --max 1000 -p 3
-Il 95th percentile calcolato e' 261745Mib | bandwith_stats_95th=261745Mib, bandwith_stats_max=261749Mib, bandwith_stats_in=128200Mib, bandwith_stats_out=128200Mib, bandwith_stats_precision=1%, bandwith_stats_burst=1
+Il 95th percentile calcolato e' 261745Mib | bandwidth_stats_95th=261745Mib, bandwidth_stats_max=261749Mib, bandwidth_stats_in=128200Mib, bandwidth_stats_out=128200Mib, bandwidth_stats_precision=1%, bandwidth_stats_burst=1
 ```
 
 ## Dettagli di calcolo
@@ -178,12 +180,12 @@ Successivamente, i dati di input ed output, gia' allineati, vengono sommati con 
 Inoltre viene calcolato il massimo puntuale dei valori e su questo viene calcolato il quantile.
 
 ## Descrizione delle metrics
-- `bandwith_stats_95th` il percentile della banda
-- `bandwith_stats_max` il massimo valore della banda
-- `bandwith_stats_in`  media della banda in input
-- `bandwith_stats_out` media della banda in output 
-- `bandwith_stats_burst` penale calcolata sul traffico in eccesso
-- `bandwith_stats_precision` rapporto tra il numero di punti aspettati e il numero di punti reali
+- `bandwidth_stats_95th` il percentile della banda
+- `bandwidth_stats_max` il massimo valore della banda
+- `bandwidth_stats_in`  media della banda in input
+- `bandwidth_stats_out` media della banda in output 
+- `bandwidth_stats_burst` penale calcolata sul traffico in eccesso
+- `bandwidth_stats_precision` rapporto tra il numero di punti aspettati e il numero di punti reali
 
 ## Descrizione Ambiente Python
 Lo script per andare deve essere eseguito su un ambiente python 3 con le seguenti librerie:

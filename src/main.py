@@ -43,13 +43,13 @@ class MainClass:
         required_settings.add_argument("-HS", "--hostname-service",     help="The hostname and service to select, those must be passed as HOSTNAME|SERVICE. One can use this argument multiple times to select multiple hosts and services", type=str, required=True, action="append", default=[])
 
         query_settings_r = self.parser.add_argument_group('query settings')
-        query_settings_r.add_argument("-I", "--input",                 help="The name of the input bandwith metric, default-value='inBandwidth'",  type=str, default="inBandwidth")
-        query_settings_r.add_argument("-O", "--output",                help="The name of the output bandwith metric, default-value='outBandwidth'", type=str, default="outBandwidth")
+        query_settings_r.add_argument("-I", "--input",                 help="The name of the input bandwidth metric, default-value='inBandwidth'",  type=str, default="inBandwidth")
+        query_settings_r.add_argument("-O", "--output",                help="The name of the output bandwidth metric, default-value='outBandwidth'", type=str, default="outBandwidth")
         query_settings_r.add_argument("-rc", "--report-csv",           help="Flag, if enabled the data read from the DB are dumped as a CSV", default=False, action="store_true")
         query_settings_r.add_argument("-rcp", "--report-csv-path",     help="Path where to save the data used, default-value='./'", type=str, default="./")
 
         thresholds_settings = self.parser.add_argument_group('Fee settings')
-        thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwith usable in Mbit/s ", type=int, required=True)
+        thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwidth usable in Mbit/s ", type=int, required=True)
         thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros/(Mbit/s) in case of the threshold is exceded", type=float, required=True)
         thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold. it must be between 0 and 1. The default value is 0.95 so the 95th percentile", type=float, default=0.95)
         thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile, if not specified it's considered the time from the first day of the current month.", type=str, default=None)
@@ -172,7 +172,19 @@ class MainClass:
         return result
 
     def interpolate(self, values, timestamp):
-        """Linear inerpolation of the values https://en.wikipedia.org/wiki/Linear_interpolation"""
+        """Return the linear interpolation [1]_ of the values 
+        
+        Parameters
+        ---------------------------------------
+        values: List[Tuple[float, float]],
+            the list of closest points.
+        timestamp: float,
+            timestamp of where the interpolation should be calculated.
+
+        References
+        ---------------------------------------
+        .. [1] https://en.wikipedia.org/wiki/Linear_interpolation
+        """
         t_0, v_0 = values[0][0], values[0][1]
         t_1, v_1 = values[1][0], values[1][1]
         result  = (v_0 * (t_1 - timestamp)) 
@@ -201,7 +213,7 @@ class MainClass:
         self.input  = np.mean(_input)
         self.output = np.mean(_output)
 
-        # The difference between the quantile and the bandwith  converted to a fee
+        # The difference between the quantile and the bandwidth  converted to a fee
         if self.quantile > self.args.max:
             self.burst = self.args.penalty * (self.quantile - self.args.max)
         else:
@@ -214,12 +226,12 @@ class MainClass:
         result = f"""Il {self.args.quantile * 100:.0f}th percentile calcolato e' {self.quantile:.0f}Mbit"""
         result += " | "
         result += ", ".join([
-            f"""bandwith_stats_95th={self.quantile:.0f}Mbit""",
-            f"""bandwith_stats_max={self.max:.0f}Mbit""",
-            f"""bandwith_stats_in={self.input:.0f}Mbit""",
-            f"""bandwith_stats_out={self.output:.0f}Mbit""",
-            f"""bandwith_stats_precision={self.precision:.0f}%""",
-            f"""bandwith_stats_burst={self.burst:.2f}""",
+            f"""bandwidth_stats_95th={self.quantile:.0f}Mbit""",
+            f"""bandwidth_stats_max={self.max:.0f}Mbit""",
+            f"""bandwidth_stats_in={self.input:.0f}Mbit""",
+            f"""bandwidth_stats_out={self.output:.0f}Mbit""",
+            f"""bandwidth_stats_precision={self.precision:.0f}%""",
+            f"""bandwidth_stats_burst={self.burst:.2f}""",
             ])
         return result
 
@@ -255,16 +267,16 @@ class MainClass:
 
         n_of_points = len(self.get_time_grid())
 
-        total_input_bandwith  = np.zeros(n_of_points)
-        total_output_bandwith = np.zeros(n_of_points)
-        total_bandwith_value  = np.zeros(n_of_points)
+        total_input_bandwidth  = np.zeros(n_of_points)
+        total_output_bandwidth = np.zeros(n_of_points)
+        total_bandwidth_value  = np.zeros(n_of_points)
         total_precision       = 0
 
         for host, service in self.host_and_services:
             logger.info(f"Analyzing {host}:{service}")
-            logger.info("Gathering the data for the input Bandwith")
+            logger.info("Gathering the data for the input Bandwidth")
             _input  = dg.exec_query(self.construct_query(self.args.input, host, service))
-            logger.info("Gathering the data for the output Bandwith")
+            logger.info("Gathering the data for the output Bandwidth")
             _output = dg.exec_query(self.construct_query(self.args.output, host, service))
 
             assert all(x['unit'] == "bytes" for x in _input),  "some data in input  are not in bytes"
@@ -293,20 +305,20 @@ class MainClass:
             _input  /= bit_to_Mbit_coeff
             _output /= bit_to_Mbit_coeff
 
-            # Update the total_input bandwith by summing all the traffic
-            total_input_bandwith  += _input
-            total_output_bandwith += _output
+            # Update the total_input bandwidth by summing all the traffic
+            total_input_bandwidth  += _input
+            total_output_bandwidth += _output
 
             # Select the puntual maximum
             _value = np.array(
                 [max(i, o) for i, o in zip(_input, _output)],
                 dtype=np.float)
             # Update the total puntual maximum
-            total_bandwith_value += _value
+            total_bandwidth_value += _value
 
 
         logger.info("Calculating the quantile and the other metrics")
-        self.calculate_statistics(total_input_bandwith, total_output_bandwith, total_bandwith_value, total_precision)
+        self.calculate_statistics(total_input_bandwidth, total_output_bandwidth, total_bandwidth_value, total_precision)
 
         # Print the results
         logger.info("Formatting the formatted results:")
