@@ -52,7 +52,7 @@ Una strategia per risolvere questo problema e' quello di andare a **creare** i p
 
 ## Intrpolazione Lineare
 
-L'idea e' quella di cercare i **due punti piu' vicini al tempo cercato**:
+L'idea e' quella di selezionare i **due punti piu' vicini al tempo cercato**:
 
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/interpolazione_iniziale.png)
 
