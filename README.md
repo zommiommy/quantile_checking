@@ -1,6 +1,8 @@
 # QuantileChecker
 Script che legge i dati **dal primo del mese a questo istante** di input ed output e calcola il 95-esimo percentile dei dati e altre statistiche. Si possono anche fare calcoli aggregati nel caso uno o piu' servizi su uno o piu' host siano associati.
 
+# Introduzione
+
 ### Spiegazione di quantile
 Supponiamo di avere dei dati di bandwith in ingresso da uno switch:
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/singolo_valore_iniziale.png)
@@ -15,27 +17,71 @@ Ora, il 95-esimo percentile e' quel valore tale per cui ci c'e' il 5% di valori 
 
 Quindi una volta individuato il punto, avremo il 5% di valori a destra e il 95% dei valori a sinistra.
 
-## Cosa succede se un servizio e' distribuito su piu' switch?
+Il che si traduce nel fatto che sul grafico orignale avremo il 5% dei punti **sopra** il quantile e il 95% dei punti **sotto**.
+
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/singolo_valore_esempio.png)
+
+## Come aggreghiamo Input ed Output?
+Nel esempio dello switch avremo sia bandwith di input che di output:
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/in_out_iniziale.png)
+
+Quello che andremo a fare e' prendere il **massimo puntuale**, quindi per ogni istante di tempo prendiamo il massimo valore tra input ed output:
 
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/in_out_max.png)
 
+Il risultato e':
+
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/in_out_solo_max.png)
 
-## Problema dell' allineamento
+## Cosa succede se un servizio e' distribuito su piu' switch?
 
+Ci troveremo in una situazione come la seguente:
 
-![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/multipli_iniziali.png)
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/multipli_iniziale.png)
+
+Andremo ad sommare i massimi di bandwith utilizzate dagli switches.
+Cosi da ottenere efettivamente il massimo consumo di bandwith del servizio.
+
+Pero' sorge un problema, per poter sommare i **punti** devono avere **lo stesso timestamp**.
+
+Ma, poiche' e' imporbabile che le statistiche degli switches siano salvate sempre nello stesso istante, non e' detto che ad un punto di uno switch ne corrisponda uno del altro ma probabilmente vi sara' un piccolo disallineamento:
 
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/multipli_allineamento.png)
 
+
+Una strategia per risolvere questo problema e' quello di andare a **creare** i punti dove non ci sono, nello specifico, il metodo adottato si chiama Interpolazione Lineare.
+
 ## Intrpolazione Lineare
+
+L'idea e' quella di cercare i **due punti piu' vicini al tempo cercato**:
 
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/interpolazione_iniziale.png)
 
+E poi andare a "scegliere" il punto sul segmento che unisce i due punti:
+
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/interpolazione_finale.png)
 
+Quindi per "allineare" i dati provenienti da piu' switches noi andremo a **creare** i punti per ogni multiplo di 5 minuti. 
+
+Cioe' ad esempio per [12:00, 12:05, 12:10, 12:15, 12:20, 12:25, ...]
+
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/interpolazione_esempio.png)
+
+Nel grafico possiamo vedere i punti "scelti" dalla Interpolazione lineare (in rosso), scegliendo punti ogni 5 minuti, sui dati iniziali (in blu).
+
+## Considerazioni:
+
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/interpolazione_finale.png)
+
+Il punto creato C sara' sempre maggiore o uguale di A e minore o uguale di B.
+E viceversa se il segmento e' descrescente invece che crescente.
+
+**Questo implica che se andremo a calcolare la media sui dati interpolati, questa sara' leggermnete minore di quella sui dati originali.**
+
+**Inoltre, se vi e' un crash e quindi per lunghi periodi andremo a non avere punti, il consumo effettivo sara' leggermnete sovra-stimato poiche' non avremo il "buco" ma un segmento che unisce l'ultimo dato prima del buco e il primo dopo.**
+
+Quindi se il primo dato dopo il "buco" coincide con l'ultimo prima, andremo ad analizzare come se il consumo fosse stato costante!
+
 
 # Implementazione
 
