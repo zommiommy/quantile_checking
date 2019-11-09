@@ -39,8 +39,7 @@ Ci troveremo in una situazione come la seguente:
 
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/multipli_iniziale.png)
 
-Andremo ad sommare i massimi di bandwith utilizzate dagli switches.
-Cosi da ottenere efettivamente il massimo consumo di bandwith del servizio.
+Per ottenere il massimo consumo di bandwith del servizio dovremo sommare i massimi di bandwith utilizzate dagli switches.
 
 Pero' insorge un problema, per poter sommare i **punti** devono avere **lo stesso timestamp**.
 
