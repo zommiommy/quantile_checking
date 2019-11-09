@@ -42,7 +42,7 @@ Ci troveremo in una situazione come la seguente:
 Andremo ad sommare i massimi di bandwith utilizzate dagli switches.
 Cosi da ottenere efettivamente il massimo consumo di bandwith del servizio.
 
-Pero' sorge un problema, per poter sommare i **punti** devono avere **lo stesso timestamp**.
+Pero' insorge un problema, per poter sommare i **punti** devono avere **lo stesso timestamp**.
 
 Ma, poiche' e' imporbabile che le statistiche degli switches siano salvate sempre nello stesso istante, non e' detto che ad un punto di uno switch ne corrisponda uno del altro ma probabilmente vi sara' un piccolo disallineamento:
 
