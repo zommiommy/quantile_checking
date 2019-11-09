@@ -1,6 +1,44 @@
 # QuantileChecker
 Script che legge i dati **dal primo del mese a questo istante** di input ed output e calcola il 95-esimo percentile dei dati e altre statistiche. Si possono anche fare calcoli aggregati nel caso uno o piu' servizi su uno o piu' host siano associati.
 
+### Spiegazione di quantile
+Supponiamo di avere dei dati di bandwith in ingresso da uno switch:
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/singolo_valore_iniziale.png)
+
+Per calcolare il quantile, la prima cosa da fare e' ordinare tutti i valori dal piu' piccolo al piu' grande:
+
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/singolo_valore_ordinato.png)
+
+Ora, il 95-esimo percentile e' quel valore tale per cui ci c'e' il 5% di valori **maggiori** ed il 95% di valori **minori**.
+
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/singolo_valore_quantile.png)
+
+Quindi una volta individuato il punto, avremo il 5% di valori a destra e il 95% dei valori a sinistra.
+
+## Cosa succede se un servizio e' distribuito su piu' switch?
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/in_out_iniziale.png)
+
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/in_out_max.png)
+
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/in_out_solo_max.png)
+
+## Problema dell' allineamento
+
+
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/multipli_iniziali.png)
+
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/multipli_allineamento.png)
+
+## Intrpolazione Lineare
+
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/interpolazione_iniziale.png)
+
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/interpolazione_finale.png)
+
+![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/interpolazione_esempio.png)
+
+# Implementazione
+
 ### Schema aspettato:
 ```
 time  hostname  service  metric  value  unit
