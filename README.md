@@ -3,7 +3,7 @@ Script che legge i dati **dal primo del mese a questo istante** di input ed outp
 
 # Introduzione
 
-### Spiegazione di quantile
+### Spiegazione del quantile e come viene calcolato
 Supponiamo di avere dei dati di bandwidth in ingresso da uno switch:
 ![](https://github.com/zommiommy/quantile_checking/raw/master/doc/imgs/singolo_valore_iniziale.png)
 
@@ -91,7 +91,7 @@ Quindi se il primo dato dopo il "buco" coincide con l'ultimo prima, andremo ad a
 time  hostname  service  metric  value  unit
 ----  --------  -------  ------  -----  ----
 ```
-Inoltre **attualmente** ci aspettiamo che unit sia sempre `bytes`.
+Inoltre **attualmente** ci aspettiamo che unit sia sempre `bits` e percio' non e' controllata.
 
 Il valore di `time` dovra' essere una epoch espressa in nanosecondi come standard InfluxDB.
 ## Descrizione Utilizzo
@@ -164,7 +164,7 @@ $ ./bin/quantile_checker -M disk -HS test1.local.it|Diskspace -HS test1.local.it
 Il 95th percentile calcolato e' 261745Mib | bandwidth_stats_95th=261745Mib, bandwidth_stats_max=261749Mib, bandwidth_stats_in=128200Mib, bandwidth_stats_out=128200Mib, bandwidth_stats_precision=1%, bandwidth_stats_burst=1
 ```
 
-## Dettagli di calcolo
+## Riasunto dei dettagli di calcolo
 Lo script scarica i dati singolarmente per ogni coppia host-servizio.
 
 Lo script si aspetta un punto ogni 5 minuti.
