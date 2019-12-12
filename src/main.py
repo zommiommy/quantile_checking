@@ -50,8 +50,8 @@ class MainClass:
 
         thresholds_settings = self.parser.add_argument_group('Fee settings')
         thresholds_settings.add_argument("-d", "--delta-time",  help="The time in seconds expected between each pair of points", type=int, default=180)
-        thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwidth usable in Mbit/s ", type=int, required=True)
-        thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros/(Mbit/s) in case of the threshold is exceded", type=float, required=True)
+        thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwidth usable in MBit/s ", type=int, required=True)
+        thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros/(MBit/s) in case of the threshold is exceded", type=float, required=True)
         thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold. it must be between 0 and 1. The default value is 0.95 so the 95th percentile", type=float, default=0.95)
         thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile, if not specified it's considered the time from the first day of the current month.", type=str, default=None)
         thresholds_settings.add_argument("-s", "--start",        help="From when the analysis must start, if not setted it defaults to now ", type=str, default=None)
@@ -224,13 +224,13 @@ class MainClass:
 
     def format_result(self):
         """Print in the standard way the metrics so that telegraph can parse them"""
-        result = f"""Il {self.args.quantile * 100:.0f}th percentile calcolato e' {self.quantile:.0f}Mbit"""
+        result = f"""Il {self.args.quantile * 100:.0f}th percentile calcolato e' {self.quantile:.0f}MBit"""
         result += " | "
         result += ", ".join([
-            f"""bandwidth_stats_95th={self.quantile:.0f}Mbit""",
-            f"""bandwidth_stats_max={self.max:.0f}Mbit""",
-            f"""bandwidth_stats_in={self.input:.0f}Mbit""",
-            f"""bandwidth_stats_out={self.output:.0f}Mbit""",
+            f"""bandwidth_stats_95th={self.quantile:.0f}MBit""",
+            f"""bandwidth_stats_max={self.max:.0f}MBit""",
+            f"""bandwidth_stats_in={self.input:.0f}MBit""",
+            f"""bandwidth_stats_out={self.output:.0f}MBit""",
             f"""bandwidth_stats_precision={self.precision:.0f}%""",
             f"""bandwidth_stats_burst={self.burst:.2f}""",
             ])
@@ -301,10 +301,10 @@ class MainClass:
             _input  = np.array(self.value_aligner(_input))
             _output = np.array(self.value_aligner(_output))
 
-            # Convert from bytes to Mbit
-            bit_to_Mbit_coeff = (1024*1024)
-            _input  /= bit_to_Mbit_coeff
-            _output /= bit_to_Mbit_coeff
+            # Convert from bytes to MBit
+            bit_to_MBit_coeff = (1024*1024)
+            _input  /= bit_to_MBit_coeff
+            _output /= bit_to_MBit_coeff
 
             # Update the total_input bandwidth by summing all the traffic
             total_input_bandwidth  += _input
