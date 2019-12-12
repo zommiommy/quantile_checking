@@ -224,13 +224,13 @@ class MainClass:
 
     def format_result(self):
         """Print in the standard way the metrics so that telegraph can parse them"""
-        result = f"""Il {self.args.quantile * 100:.0f}th percentile calcolato e' {self.quantile:.0f}MB"""
+        result = f"""Il {self.args.quantile * 100:.0f}th percentile calcolato e' {self.quantile:.0f}Mbit"""
         result += " | "
         result += ", ".join([
-            f"""bandwidth_stats_95th={self.quantile:.0f}MB""",
-            f"""bandwidth_stats_max={self.max:.0f}MB""",
-            f"""bandwidth_stats_in={self.input:.0f}MB""",
-            f"""bandwidth_stats_out={self.output:.0f}MB""",
+            f"""bandwidth_stats_95th={self.quantile:.0f}""",
+            f"""bandwidth_stats_max={self.max:.0f}""",
+            f"""bandwidth_stats_in={self.input:.0f}""",
+            f"""bandwidth_stats_out={self.output:.0f}""",
             f"""bandwidth_stats_precision={self.precision:.0f}%""",
             f"""bandwidth_stats_burst={self.burst:.2f}""",
             ])
