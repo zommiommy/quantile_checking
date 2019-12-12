@@ -49,6 +49,7 @@ class MainClass:
         query_settings_r.add_argument("-rcp", "--report-csv-path",     help="Path where to save the data used, default-value='./'", type=str, default="./")
 
         thresholds_settings = self.parser.add_argument_group('Fee settings')
+        thresholds_settings.add_argument("-d", "--delta-time",  help="The time in seconds expected between each pair of points", type=int, default=180)
         thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwidth usable in Mbit/s ", type=int, required=True)
         thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros/(Mbit/s) in case of the threshold is exceded", type=float, required=True)
         thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold. it must be between 0 and 1. The default value is 0.95 so the 95th percentile", type=float, default=0.95)
@@ -131,18 +132,18 @@ class MainClass:
             logger.info("Creating time grid of this month")
             start = self.get_first_of_month()
             # Rounding the values to the LAST multiple of 5 minutes. 18:28 will be rounded to 18:25
-            n_of_points = int(self.get_seconds_from_first_of_month() / (5 * 60)) 
+            n_of_points = int(self.get_seconds_from_first_of_month() / (self.args.delta_time)) 
             return [
-                datetime.timestamp(start + timedelta(minutes=5*i))
+                datetime.timestamp(start + timedelta(seconds=self.args.delta_time*i))
                 for i in range(n_of_points)
             ]
         else:
             logger.info("Creating time grid with start and end")
             start = self.parse_UTC_time(self.args.start)
             end   = self.parse_UTC_time(self.args.end)
-            n_of_points = int((end - start) / (5 * 60)) 
+            n_of_points = int((end - start) / (self.args.delta_time)) 
             return [
-                start + (5*60*i)
+                start + (self.args.delta_time*i)
                 for i in range(n_of_points)
             ]
             
