@@ -226,7 +226,7 @@ class MainClass:
         """Print in the standard way the metrics so that telegraph can parse them"""
         result = f"""Il {self.args.quantile * 100:.0f}th percentile calcolato e' {self.quantile:.0f}Mbit"""
         result += " | "
-        result += "".join([
+        result += " ".join([
             f"""bandwidth_stats_95th={self.quantile:.0f}""",
             f"""bandwidth_stats_max={self.max:.0f}""",
             f"""bandwidth_stats_in={self.input:.0f}""",
