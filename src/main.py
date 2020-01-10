@@ -288,6 +288,17 @@ class MainClass:
 
             if self.args.report_csv:
                 self.export_to_csv(host, service, _input, _output)
+                        
+            # WARNING
+            # if a switch is down there will be no data both for input and output.
+            # the control here is separated to be able to log wierd cases
+            # but skip the anomalous cases
+            if len(_input) <= 0:
+                logger.warning(f"{host}:{service} has not input data so it will be skipped.")
+                continue
+            if len(_output) <= 0:
+                logger.warning(f"{host}:{service} has not output data but it has input data. This is unusual and it will be skipped.")
+                continue
 
             # Calculate the precision
             total_precision += (min(len(_input), len(_output)) / n_of_points)
