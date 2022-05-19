@@ -284,7 +284,7 @@ Output description:
             f"""bandwidth_traffic_mean_in={self.input:.0f}""",
             f"""bandwidth_traffic_mean_out={self.output:.0f}""",
             f"""bandwidth_precision={self.precision:.0f}%""",
-            f"""bandwidth_contract={self.args.max:.0f}%""",
+            f"""bandwidth_contract={self.args.max:.0f}""",
             f"""bandwidth_burst_traffic={self.burst:.2f}""",
             f"""bandwidth_burst_penalty={self.penalty:.2f}""",
             ])
