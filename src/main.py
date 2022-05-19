@@ -107,7 +107,7 @@ Output description:
         thresholds_settings.add_argument("-e", "--end", help="From when the analysis must end, if not setted it defaults to now ", type=str, default=None)
         thresholds_settings.add_argument("-w", "--warning", help="If the computed *penalty* is over this value the script will return exit code 1. Default: %(default)s", type=float, default=float("inf"))
         thresholds_settings.add_argument("-c", "--critical", help="If the computed *penalty* is over this value the script will return exit code 2. Default: %(default)s", type=float, default=float("inf"))
-
+        thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile, if not specified it's considered the time from the first day of the current month.", type=str, default=None)
 
         verbosity_settings= self.parser.add_argument_group('verbosity settings (optional)')
         verbosity_settings.add_argument("-v", "--verbosity", help="set the logging verbosity, 0 == CRITICAL, 1 == INFO, 2 == DEBUG it defaults to ERROR.",  type=int, choices=[0,1,2], default=0)
