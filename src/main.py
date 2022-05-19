@@ -2,6 +2,7 @@
 
 from logger import logger, setLevel
 from data_getter import DataGetter
+from argparse import RawTextHelpFormatter
 
 import os
 import sys
@@ -27,35 +28,85 @@ class MyParser(argparse.ArgumentParser):
         self.print_help(file=sys.stderr)
         sys.exit(1)
 
-
 class MainClass:
 
     copyrights = """QuantileChecker is a free software developed by Tommaso Fontana for Wurth Phoenix S.r.l. under GPL-2 License."""
+
+    description = """
+The expected Influx DB Schema is:
+```
+time  hostname  service  metric  value  unit
+----  --------  -------  ------  -----  ----
+```
+where `unit` HAS TO BE `bytes`.
+
+Computation description:
+1 - Define the time interval, by default it takes all the data between now and 
+    the first of the month. Otherwise we can specify the analysis period using
+    **both** `--start` and `--end`.
+2 - Gather the data from the InfluxDB for all the Host and Service queries
+3 - Align the data to multiple of `delta-time` (default 5min) using linear 
+    interpolation. 
+4 - Take the max bandwidth between the input and output bandwidth
+5 - Sum the max bandwidth between input and output for each pair of host and service
+6 - Sort the data
+7 - Find the value that has about (100 * `--quantile`) %% of data below and 
+    (100 * (1 - `--quantile`) %% data above.
+8 - Compute the fee using `--penalty`
+9 - Return exit code 1 if the fee was bigger than the warning threshold and 
+    2 if it was bigger than the critical threshold.
+
+
+Output description:
+ - bandwidth_traffic_95th: The `--quantile`-th quantile of the data aligned to 
+    `delta-time`, taken the max between input and output bandwidth, summed for 
+    each pair of host and service.
+ - bandwidth_traffic_max: The maximum of the data aligned to `delta-time`, 
+    taken the max between input and output bandwidth, summed for each pair of
+    host and service
+ - bandwidth_traffic_mean_in: The mean of the data aligned to `delta-time`, 
+    summed for each pair of host and service of the input bandwidth
+ - bandwidth_traffic_mean_out: The mean of the data aligned to `delta-time`, 
+    summed for each pair of host and service of the output bandwidth
+ - bandwidth_precision: We expect a data point every `delta-time` seconds, so 
+    this value is the ratio of the number of measurements with the number of
+    point we expect: #measurements / (time_interval / deltatime). 
+    This is mainly used to check if there where "gaps" in data which could 
+    change the resulting quantile.
+ - bandwidth_contract: The value of `--max`, this is here just to log in the DB
+    the changes in contracted bandwidth.
+ - bandwidth_burst_traffic: bandwidth_traffic_95th - bandwidth_contract
+ - bandwidth_burst_penalty: penalty * (bandwidth_traffic_95th - bandwidth_contract)
+
+ All the traffic output are in MIB (1024 * 1024 bytes) which are about 
+ 8.388608 Mb (1000 * 1000 bits).
+    """
 
     def __init__(self):
         """Initialization of the class and parisng of the arguments"""
         # Define the possible settings
 
-        self.parser = MyParser(description=self.copyrights)
+        self.parser = MyParser(description=self.copyrights + self.description, formatter_class=RawTextHelpFormatter)
 
         required_settings = self.parser.add_argument_group('required settings')
         required_settings.add_argument("-M", "--measurement",           help="Measurement where the data will be queried.", type=str, required=True)
         required_settings.add_argument("-HS", "--hostname-service",     help="The hostname and service to select, those must be passed as HOSTNAME|SERVICE. One can use this argument multiple times to select multiple hosts and services", type=str, required=True, action="append", default=[])
 
         query_settings_r = self.parser.add_argument_group('query settings')
-        query_settings_r.add_argument("-I", "--input",                 help="The name of the input bandwidth metric, default-value='inBandwidth'",  type=str, default="inBandwidth")
-        query_settings_r.add_argument("-O", "--output",                help="The name of the output bandwidth metric, default-value='outBandwidth'", type=str, default="outBandwidth")
-        query_settings_r.add_argument("-rc", "--report-csv",           help="Flag, if enabled the data read from the DB are dumped as a CSV", default=False, action="store_true")
-        query_settings_r.add_argument("-rcp", "--report-csv-path",     help="Path where to save the data used, default-value='./'", type=str, default="./")
+        query_settings_r.add_argument("-I", "--input", help="The name of the input bandwidth metric, default-value='inBandwidth'. Default: %(default)s",  type=str, default="inBandwidth")
+        query_settings_r.add_argument("-O", "--output", help="The name of the output bandwidth metric, default-value='outBandwidth. Default: %(default)s'", type=str, default="outBandwidth")
+        query_settings_r.add_argument("-rc", "--report-csv",  help="Flag, if enabled the data read from the DB are dumped as a CSV.", default=False, action="store_true")
+        query_settings_r.add_argument("-rcp", "--report-csv-path", help="Path where to save the data used, default-value='./'. Default: %(default)s", type=str, default="./")
 
         thresholds_settings = self.parser.add_argument_group('Fee settings')
-        thresholds_settings.add_argument("-d", "--delta-time",  help="The time in seconds expected between each pair of points", type=int, default=180)
-        thresholds_settings.add_argument("-m", "--max",         help="The maxiumum ammount of Bandwidth usable in MB/s ", type=int, required=True)
-        thresholds_settings.add_argument("-p", "--penalty",     help="The fee in euros/(MB/s) in case of the threshold is exceded", type=float, required=True)
-        thresholds_settings.add_argument("-q", "--quantile",    help="The quantile to confront with the threshold. it must be between 0 and 1. The default value is 0.95 so the 95th percentile", type=float, default=0.95)
-        thresholds_settings.add_argument("-t", "--time",        help="The timewindow to calculate the percentile, if not specified it's considered the time from the first day of the current month.", type=str, default=None)
-        thresholds_settings.add_argument("-s", "--start",        help="From when the analysis must start, if not setted it defaults to now ", type=str, default=None)
-        thresholds_settings.add_argument("-e", "--end",        help="From when the analysis must end, if not setted it defaults to now ", type=str, default=None)
+        thresholds_settings.add_argument("-d", "--delta-time", help="The time in seconds expected between each pair of points. Default: %(default)s", type=int, default=180)
+        thresholds_settings.add_argument("-m", "--max", help="The maxiumum ammount of Bandwidth usable in MiB/s", type=int, required=True)
+        thresholds_settings.add_argument("-p", "--penalty", help="The fee in euros/(MiB/s) in case of the threshold is exceded", type=float, required=True)
+        thresholds_settings.add_argument("-q", "--quantile", help="The quantile to confront with the threshold. it must be between 0 and 1. The default value is 0.95 so the 95th percentile. Default: %(default)s", type=float, default=0.95)
+        thresholds_settings.add_argument("-s", "--start", help="From when the analysis must start, if not setted it defaults to now ", type=str, default=None)
+        thresholds_settings.add_argument("-e", "--end", help="From when the analysis must end, if not setted it defaults to now ", type=str, default=None)
+        thresholds_settings.add_argument("-w", "--warning", help="If the computed *penalty* is over this value the script will return exit code 1. Default: %(default)s", type=float, default=float("inf"))
+        thresholds_settings.add_argument("-c", "--critical", help="If the computed *penalty* is over this value the script will return exit code 2. Default: %(default)s", type=float, default=float("inf"))
 
 
         verbosity_settings= self.parser.add_argument_group('verbosity settings (optional)')
@@ -216,7 +267,8 @@ class MainClass:
 
         # The difference between the quantile and the bandwidth  converted to a fee
         if self.quantile > self.args.max:
-            self.burst = self.args.penalty * (self.quantile - self.args.max)
+            self.burst = self.quantile - self.args.max
+            self.penalty = self.args.penalty * self.burst
         else:
             self.burst = 0
         
@@ -224,15 +276,17 @@ class MainClass:
 
     def format_result(self):
         """Print in the standard way the metrics so that telegraph can parse them"""
-        result = f"""Il {self.args.quantile * 100:.0f}th percentile calcolato e' {self.quantile:.0f}Mbit"""
+        result = f"""The {self.args.quantile * 100:.0f}th percentile is {self.quantile:.0f}MiB. Burst traffic is {self.burst:.0f}MiB. Burst penalty is {self.penalty:.0f} Euros"""
         result += " | "
         result += " ".join([
-            f"""bandwidth_stats_95th={self.quantile:.0f}""",
-            f"""bandwidth_stats_max={self.max:.0f}""",
-            f"""bandwidth_stats_in={self.input:.0f}""",
-            f"""bandwidth_stats_out={self.output:.0f}""",
-            f"""bandwidth_stats_precision={self.precision:.0f}%""",
-            f"""bandwidth_stats_burst={self.burst:.2f}""",
+            f"""bandwidth_traffic_95th={self.quantile:.0f}""",
+            f"""bandwidth_traffic_max={self.max:.0f}""",
+            f"""bandwidth_traffic_mean_in={self.input:.0f}""",
+            f"""bandwidth_traffic_mean_out={self.output:.0f}""",
+            f"""bandwidth_precision={self.precision:.0f}%""",
+            f"""bandwidth_contract={self.args.max:.0f}%""",
+            f"""bandwidth_burst_traffic={self.burst:.2f}""",
+            f"""bandwidth_burst_penalty={self.penalty:.2f}""",
             ])
         return result
 
@@ -337,6 +391,13 @@ class MainClass:
         result = self.format_result()
         logger.info("Printing the results")
         print(result)
+
+        if self.penalty > self.args.critical:
+            sys.exit(2)
+        elif self.penalty > self.args.warning:
+            sys.exit(1)
+        else:
+            sys.exit(0)
 
 if __name__ == "__main__":
     MainClass().run()
