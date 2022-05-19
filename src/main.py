@@ -38,7 +38,7 @@ The expected Influx DB Schema is:
 time  hostname  service  metric  value  unit
 ----  --------  -------  ------  -----  ----
 ```
-where `unit` HAS TO BE `bytes`.
+where `unit` HAS TO BE `bytes` or if not specified `bytes` will be used as default.
 
 Computation description:
 1 - Define the time interval, by default it takes all the data between now and 
@@ -334,8 +334,8 @@ Output description:
             logger.info("Gathering the data for the output Bandwidth")
             _output = dg.exec_query(self.construct_query(self.args.output, host, service))
 
-            assert all(x.get('unit', "bytes") == "bytes" for x in _input),  "some data in input  are not in bytes. The units are: {}".format({x['unit'] for x in _input})
-            assert all(x.get('unit', "bytes") == "bytes" for x in _output), "some data in output are not in bytes. The units are: {}".format({x['unit'] for x in _input})
+            assert all((x.get('unit') or "bytes") == "bytes" for x in _input),  "some data in input  are not in bytes. The units are: {}".format({x['unit'] for x in _input})
+            assert all((x.get('unit') or "bytes") == "bytes" for x in _output), "some data in output are not in bytes. The units are: {}".format({x['unit'] for x in _input})
 
             logger.info(f"Test mean input  {np.mean([x['value'] for x in _input])}")
             logger.info(f"Test mean output {np.mean([x['value'] for x in _output])}")
