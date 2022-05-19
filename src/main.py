@@ -334,8 +334,8 @@ Output description:
             logger.info("Gathering the data for the output Bandwidth")
             _output = dg.exec_query(self.construct_query(self.args.output, host, service))
 
-            assert all(x['unit'] == "bytes" for x in _input),  "some data in input  are not in bytes. The units are: {}".format({x['unit'] for x in _input})
-            assert all(x['unit'] == "bytes" for x in _output), "some data in output are not in bytes. The units are: {}".format({x['unit'] for x in _input})
+            assert all(x.get('unit', "bytes") == "bytes" for x in _input),  "some data in input  are not in bytes. The units are: {}".format({x['unit'] for x in _input})
+            assert all(x.get('unit', "bytes") == "bytes" for x in _output), "some data in output are not in bytes. The units are: {}".format({x['unit'] for x in _input})
 
             logger.info(f"Test mean input  {np.mean([x['value'] for x in _input])}")
             logger.info(f"Test mean output {np.mean([x['value'] for x in _output])}")
